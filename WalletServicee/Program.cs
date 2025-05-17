@@ -1,4 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using WalletServicee.Database;
 
 namespace WalletServicee;
@@ -15,7 +18,25 @@ public class Program
         builder.Services.AddControllers();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+
+        builder.Services.AddAuthorization();
         
+       
         
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -29,9 +50,6 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
-        app.UseAuthorization();
-
 
         app.MapControllers();
 
