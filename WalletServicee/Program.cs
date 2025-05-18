@@ -2,7 +2,10 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using WalletServicee.Controllers.Operations;
 using WalletServicee.Database;
+using WalletServicee.Services;
+using WalletServicee.Services.Wallets;
 
 namespace WalletServicee;
 
@@ -16,6 +19,7 @@ public class Program
         // Add services to the container.
 
         builder.Services.AddControllers();
+        builder.Services.AddHttpContextAccessor();
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -36,8 +40,9 @@ public class Program
 
         builder.Services.AddAuthorization();
         
-       
-        
+        builder.Services.AddScoped<IWalletService, WalletService>();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddScoped<IOperationService, OperationService>();
         
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 

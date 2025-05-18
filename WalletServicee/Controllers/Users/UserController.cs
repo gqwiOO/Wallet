@@ -2,17 +2,20 @@
 using Microsoft.EntityFrameworkCore;
 using WalletServicee.Database;
 using WalletServicee.Models.Users;
+using WalletServicee.Services;
 
 namespace WalletServicee.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AccountController : ControllerBase
+public class UserController : ControllerBase
 {
     private readonly AppDbContext _context;
-    
-    public AccountController(AppDbContext context)
+    private IUserService _userService;
+
+    public UserController(AppDbContext context, IUserService userService)
     {
+        _userService = userService;
         _context = context;
     }
     
@@ -39,7 +42,7 @@ public class AccountController : ControllerBase
     [HttpGet("{id}")]
     public User GetUserById([FromRoute] int id)
     {
-        return _context.Users.FirstOrDefault(item => item.Id == id);
+        return _userService.GetUserById(id);
     }
 
     [HttpDelete("delete/{id}")]
